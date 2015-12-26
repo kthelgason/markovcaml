@@ -1,4 +1,4 @@
-open Printf ;;
+open Printf 
 
 type distribution =
   { total : int ;
@@ -43,11 +43,11 @@ let sentences str =
                  (List.rev (List.map List.rev (aux str [[]] 0))) ;;
 
 let compute_distribution l =
-  let rec f acc e =
+  let f acc e =
     match acc with
     | (c, count) :: rest  when e = c ->
         (c, count + 1) :: rest
-    | (c, count) :: rest ->
+    | (_, _) :: _ ->
         (e, 1) :: acc
     | [] -> [(e, 1)]
   in let dist = List.fold_left f [] (List.sort compare l)
@@ -108,4 +108,31 @@ let walk_ptable { table ; prefix_length = pl } =
     if next = "STOP" then str
     else aux table (next :: str) (shift last next)
   in List.rev (aux table [] (start pl))
+
+
+let read_line ic =
+  try Some (input_line ic)
+  with End_of_file -> None
+
+let read_lines ic =
+  let rec loop acc =
+    match read_line ic with
+    | Some line -> loop (line :: acc)
+    | None -> List.rev acc
+  in
+  loop []
+
+let () =
+  let random_sentence = walk_ptable (build_ptable
+                          (List.flatten
+                             (sentences (String.concat "\n" (read_lines stdin)))) 2)
+  in List.iter (fun str -> printf "%s " str) random_sentence
+
+
+
+
+
+
+
+
 
